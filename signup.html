@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="card-container">
+    <h2>Sign Up</h2>
+
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button id="signup-btn">Sign Up</button>
+    <p class="switch">Already have an account? <a href="login.html">Log In</a></p>
+
+    <p id="error" style="color:red;"></p>
+  </div>
+
+  <script type="module">
+    import { auth } from './firebase.js'; 
+    import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+
+    const errorElement = document.getElementById('error');
+    const signupBtn = document.getElementById('signup-btn');
+
+    signupBtn.addEventListener('click', async () => {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      errorElement.textContent = ""; // clear previous error
+
+      if (!email || !password) {
+        errorElement.textContent = "Please enter both email and password.";
+        return;
+      }
+
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        alert("Signed up successfully!");
+        window.location.href = 'homepage/main.html';
+      } catch (error) {
+        if (error.code === "auth/email-already-in-use") {
+          errorElement.textContent = "This email is already registered. Please log in.";
+        } else if (error.code === "auth/invalid-email") {
+          errorElement.textContent = "Invalid email format.";
+        } else if (error.code === "auth/weak-password") {
+          errorElement.textContent = "Password should be at least 6 characters.";
+        } else {
+          errorElement.textContent = error.message;
+        }
+      }
+    });
+  </script>
+</body>
+</html>
